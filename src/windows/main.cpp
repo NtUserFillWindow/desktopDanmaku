@@ -30,6 +30,8 @@ namespace danmaku
 
         if (!RegisterClassEx(&dm_wc))
         {
+            debug::logOutput(L"[错误] 主窗口类注册错误\n");
+            debug::logWinError(GetLastError());
             MessageBox(nullptr, L"（0001）主窗口：窗口类注册失败", L"出错了欸", MB_ICONERROR | MB_OK);
             return *this;
         }
@@ -47,6 +49,8 @@ namespace danmaku
         // 检查窗口创建是否成功
         if (!hwnd)
         {
+            debug::logOutput(L"[错误] 主窗口创建失败\n");
+            debug::logWinError(GetLastError());
             MessageBox(nullptr, L"（0002）主窗口：创建窗口失败", L"出错了欸", MB_ICONERROR | MB_OK);
         }
         return *this;
