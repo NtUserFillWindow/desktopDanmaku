@@ -19,7 +19,6 @@ namespace danmaku
             break;
         case elementType::label:
             needFont = true;
-            debug::logOutput(L"标签创建：", elementID, "\n");
             hwnd = CreateWindow(L"STATIC", text.c_str(), WS_VISIBLE | WS_CHILD | SS_LEFT,
                                 position.x, position.y, position.width, position.height, parentHwnd, (HMENU)elementID, GetModuleHandle(nullptr), nullptr);
             break;
@@ -41,9 +40,8 @@ namespace danmaku
         {
         case WM_CTLCOLORSTATIC:
         {
-            debug::logOutput(L"color static 消息，对象ID：", elementID, L"，", text);
             // 处理color Static消息，当前版本选择采取集中处理方式，后期将修改
-            HWND hWndCtrl = (HWND)lParam;
+            [[maybe_unused]] HWND hWndCtrl = (HWND)lParam;
             HDC hdcCtrl = (HDC)wParam;
 
             if (extra == nullptr)

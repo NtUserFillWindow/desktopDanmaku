@@ -24,7 +24,6 @@ namespace danmaku
         {
             id = ++currentElementID;
         }
-        debug::logOutput(L"创建ID：", id, "\n");
         s_idMap[id] = elem;
         return id;
     }
@@ -39,7 +38,11 @@ namespace danmaku
         {
             s_idMap.erase(it);       // 从对照表中移除
             s_freeIds.push_back(id); // 加入空闲池以供重用
-        } // else{debug::logOutput("[erro]");}
+        }
+        else
+        {
+            debug::logOutput("[erro] releaseID: invalid ID or mismatched object", L"\n");
+        }
     }
 
     element &searchID(UINT_PTR id)
@@ -48,12 +51,10 @@ namespace danmaku
         auto it = element::s_idMap.find(id);
         if (it != element::s_idMap.end())
         {
-            debug::logOutput(L"寻找id", id, L"成功");
             return *(it->second);
         }
         else
         {
-            debug::logOutput(L"寻找id", id, L"失败");
             throw std::runtime_error("element::searchID: invalid ID");
         }
     }
@@ -68,7 +69,6 @@ namespace danmaku
         }
         else
         {
-            debug::logOutput(L"ID转移失败，ID不存在：", id, "\n");
             throw std::runtime_error("idTransfer: invalid ID");
         }
     }

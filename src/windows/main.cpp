@@ -83,7 +83,6 @@ namespace danmaku
             PostQuitMessage(0);
             return 0;
         case WM_CTLCOLORSTATIC:
-            debug::logOutput(L"Color static消息\n");
             return transferToElement(uMsg, wParam, lParam);
 
         default:

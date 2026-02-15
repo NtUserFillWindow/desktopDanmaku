@@ -1,5 +1,6 @@
 #include <windows.h>
 #include "main.hpp"
+#include <optional>
 
 void init_creatElement(danmaku::baseWindow &mainWND);
 int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance,
@@ -22,42 +23,50 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
     return static_cast<int>(msg.wParam);
 }
 
-// 全局元素对象，避免在函数结束后被销毁
-std::vector<danmaku::element> g_elements;
 // 默认字体对象，微软雅黑字体，大小为24
 danmaku::font defaultFont(L"微软雅黑", 24);
 danmaku::labelExtraInfo lei{
     RGB(0, 0, 0),      // 黑色文本
     RGB(255, 255, 255) // 白色背景
 };
+
+// 全局 optional 变量
+std::optional<danmaku::element> g_elemLabelAppName;
+std::optional<danmaku::element> g_elemLabelPrompt;
+std::optional<danmaku::element> g_elemButton;
+
 void init_creatElement(danmaku::baseWindow &mainWND)
 {
-    g_elements.reserve(3);
-    /* 标签 */
-    // 软件名
-    g_elements.emplace_back(
+    // 软件名标签
+    g_elemLabelAppName.emplace(
         mainWND.getHandle(),
         danmaku::elementType::label,
         danmaku::rect{0, 0, 500, 25},
         L"桌面弹幕 - Desktop Danmaku",
         defaultFont,
         nullptr);
-    // 输入提示
-    g_elements.emplace_back(
+
+    // 输入提示标签
+    g_elemLabelPrompt.emplace(
         mainWND.getHandle(),
         danmaku::elementType::label,
         danmaku::rect{5, 30, 100, 25},
         L"内容：",
         defaultFont,
         &lei);
-    /* 按钮 */
-    g_elements.emplace_back(
+
+    // 发送按钮
+    g_elemButton.emplace(
         mainWND.getHandle(),
         danmaku::elementType::button,
         danmaku::rect{5, 60, 100, 25},
         L"发送弹幕",
         defaultFont,
         nullptr);
-    // 创建元素
-    danmaku::createElements(g_elements[0], g_elements[1], g_elements[2]);
+
+    // 创建元素（通过 .value() 获取引用）
+    danmaku::createElements(
+        g_elemLabelAppName.value(),
+        g_elemLabelPrompt.value(),
+        g_elemButton.value());
 }
