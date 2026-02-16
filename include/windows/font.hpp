@@ -17,11 +17,13 @@ namespace danmaku
         {
             create(fontName, fontSize, bold, italic, underline, strikeout);
         }
-        
+
         HFONT create(const wchar_t *fontName, int fontSize,
                      bool bold = false, bool italic = false,
                      bool underline = false, bool strikeout = false)
         {
+            if (hFont)
+                DeleteObject(hFont);
             return hFont = CreateFontW(
                        fontSize, 0, 0, 0,
                        bold ? FW_BOLD : FW_NORMAL,
