@@ -8,18 +8,22 @@
 
 namespace danmaku
 {
+    // overlay窗口覆盖整个屏幕，用于显示弹幕
     class overlayWindow : public baseWindow
     {
     private:
+        // 内存DC，用于双缓冲绘制
         HDC cdc_{};
+        // 内存位图，用于双缓冲绘制
         HBITMAP bitmap_{};
+        // 选择的旧位图对象，用于恢复DC状态
         HGDIOBJ oldObject_{};
-        Gdiplus::GpGraphics* graphics_{};
-        int width_{}, height_{};// 客户区
+        // GDI+图形对象，用于绘制弹幕
+        Gdiplus::GpGraphics *graphics_{};
+        int width_{}, height_{}; // 客户区
 
         // TODO 弹幕管理
         std::vector<danmakuItem> danmaku_{};
-        
 
         BOOL layoutFullscreen();
 

@@ -8,11 +8,19 @@
 #include <gdiplus.h>
 #include "main.hpp"
 
+// 向前声明
 void init_creatElement(danmaku::baseWindow &mainWND);
+void buttonClickHandler();
 
+// 全局 GDI+ token
 ULONG_PTR g_gpToken{};
 // 全局 overlayWindow 指针，用于在按钮点击时添加弹幕
-danmaku::overlayWindow* g_overlayWindow = nullptr;
+danmaku::overlayWindow *g_overlayWindow = nullptr;
+// 全局 optional 变量
+std::optional<danmaku::element> g_elemLabelAppName;
+std::optional<danmaku::element> g_elemLabelPrompt;
+std::optional<danmaku::element> g_elemEditContent;
+std::optional<danmaku::element> g_elemButton;
 
 int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance,
                     [[maybe_unused]] PWSTR pCmdLine, [[maybe_unused]] int nCmdShow)
@@ -64,9 +72,6 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
     return static_cast<int>(msg.wParam);
 }
 
-// 向前声明
-void buttonClickHandler();
-
 // 默认字体对象，微软雅黑字体，大小为24
 danmaku::font defaultFont(L"微软雅黑", 24);
 danmaku::labelExtraInfo lei{
@@ -75,14 +80,9 @@ danmaku::labelExtraInfo lei{
 };
 danmaku::buttonExtraInfo bei{
     buttonClickHandler,
-    nullptr,
-    nullptr};
-
-// 全局 optional 变量
-std::optional<danmaku::element> g_elemLabelAppName;
-std::optional<danmaku::element> g_elemLabelPrompt;
-std::optional<danmaku::element> g_elemEditContent;
-std::optional<danmaku::element> g_elemButton;
+    nullptr, // 暂无
+    nullptr  // 暂无
+};
 
 void init_creatElement(danmaku::baseWindow &mainWND)
 {
@@ -148,7 +148,7 @@ void buttonClickHandler()
     if (g_overlayWindow)
     {
         // 添加新弹幕
-        g_overlayWindow->addDanmaku(content, 20, 0xff'66ccff, 0xff'ffcc66);
+        g_overlayWindow->addDanmaku(content, 40, 0xff'66ccff, 0xff'ffcc66);
     }
 
     // 发送后清空输入框

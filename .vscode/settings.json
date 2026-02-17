@@ -5,6 +5,8 @@
         "Gdip",
         "GWLP_USERDATA",
         "HFONT",
+        "HGDIOBJ",
+        "HMONITOR",
         "iccex",
         "ICONERROR",
         "INITCOMMONCONTROLSEX",
@@ -12,9 +14,14 @@
         "lcomctl32",
         "lpszMenuName",
         "mainfest",
+        "MONITORINFOF_PRIMARY",
+        "PARGB",
         "PCWSTR",
         "PixelFormat32bppPARGB",
-        "WM_NCCREATE"
+        "ulwi",
+        "UPDATELAYEREDWINDOWINFO",
+        "WM_NCCREATE",
+        "WNDCLASSW"
     ],
     "files.associations": {
         "array": "cpp",
