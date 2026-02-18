@@ -19,7 +19,7 @@ namespace danmaku
         // 选择的旧位图对象，用于恢复DC状态
         HGDIOBJ oldObject_{};
         // GDI+图形对象，用于绘制弹幕
-        Gdiplus::GpGraphics *graphics_{};
+        GpPtr<Gdiplus::GpGraphics> graphics_{};
         int width_{}, height_{}; // 客户区
 
         danmakuManager danmakuMgr_;

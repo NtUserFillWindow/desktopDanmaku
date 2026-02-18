@@ -79,10 +79,7 @@ namespace danmaku
         // 将新位图选入内存DC，并保存旧的位图对象指针以便后续恢复
         oldObject_ = SelectObject(cdc_, bitmap_);
 
-        // 如果之前已创建GDI+图形对象，则删除它
-        if (graphics_)
-            GdipDeleteGraphics(graphics_);
-        GdipCreateFromHDC(cdc_, &graphics_);
+        GdipCreateFromHDC(cdc_, graphics_.addressOfClear());
 
         paint();
     }
@@ -94,7 +91,7 @@ namespace danmaku
         // 清除
         FillRect(cdc_, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
-        danmakuMgr_.draw(graphics_);
+        danmakuMgr_.draw(graphics_.get());
 
         // 设置分层窗口的混合参数（逐像素alpha）
         constexpr BLENDFUNCTION BlendFuncAlpha{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};

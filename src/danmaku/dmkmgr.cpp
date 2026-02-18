@@ -3,7 +3,7 @@
 namespace danmaku
 {
     // FIXME 充满时仍然应当选择一个轨道显示
-    size_t danmakuManager::findBestTrack(float itemWidth, float itemSpeed) const
+    size_t danmakuManager::findBestTrack(float itemSpeed) const
     {
         constexpr size_t startTrack = 0;
         for (size_t i = 0; i < tracks_.size(); ++i)
@@ -48,11 +48,10 @@ namespace danmaku
     bool danmakuManager::addDanmaku(danmakuItem &&item)
     {
         item.rasterize();
-        const auto width = item.getWidth();
-        const auto distance = screenWidth_ + width;
+        const auto distance = screenWidth_ + item.getWidth();
         const auto speed = distance / duration_ * speedFactor_;
 
-        const auto idx = findBestTrack(width, speed);
+        const auto idx = findBestTrack(speed);
         if (idx != InvalidTrack)
         {
             auto &dmk = tracks_[idx].items.emplace_back(std::move(item));

@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "functions/gpptr.hpp"
+
 namespace danmaku
 {
     class danmakuItem
@@ -14,12 +16,12 @@ namespace danmaku
         Gdiplus::ARGB fillColor_{};
         Gdiplus::ARGB borderColor_{};
         std::wstring text_{};
-        Gdiplus::GpBitmap *bitmap_{};
+        GpPtr<Gdiplus::GpBitmap> bitmap_{};
         float width_{};
         float height_{};
         float emSize_{};
         float x_{};
-        float speed_{};// 像素/秒
+        float speed_{}; // 像素/秒
     public:
         // 允许重复调用
         void rasterize();
@@ -32,23 +34,19 @@ namespace danmaku
         danmakuItem() = default;
         danmakuItem(const danmakuItem &) = delete;
         danmakuItem &operator=(const danmakuItem &) = delete;
-
-        danmakuItem(danmakuItem && x) noexcept;
-        danmakuItem &operator=(danmakuItem && x) noexcept;
+        danmakuItem(danmakuItem &&) = default;
+        danmakuItem &operator=(danmakuItem &&) = default;
 
         danmakuItem(
             std::wstring_view text,
             float emSize,
             Gdiplus::ARGB fillColor,
-            Gdiplus::ARGB borderColor) :
-            fillColor_{fillColor},
-            borderColor_{borderColor},
-            text_{text},
-            emSize_{emSize}
+            Gdiplus::ARGB borderColor) : fillColor_{fillColor},
+                                         borderColor_{borderColor},
+                                         text_{text},
+                                         emSize_{emSize}
         {
         }
-
-        ~danmakuItem();
 
         void setX(float x) { x_ = x; }
         void setSpeed(float speed) { speed_ = speed; }

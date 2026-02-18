@@ -25,7 +25,7 @@ namespace danmaku
         std::vector<Track> tracks_{};
 
         // 从上到下寻找第一个合适轨道
-        size_t findBestTrack(float itemWidth, float itemSpeed) const;
+        size_t findBestTrack(float itemSpeed) const;
 
     public:
         // WARNING 尺寸、行高、行距改变后必须调用本函数
