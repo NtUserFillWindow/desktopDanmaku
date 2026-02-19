@@ -1,4 +1,5 @@
 #include "windows/overlay.hpp"
+#include "functions/randnum.hpp"
 
 using namespace Gdiplus::DllExports;
 
@@ -78,14 +79,7 @@ namespace danmaku
         // 删除旧的位图，准备创建新尺寸的位图
         DeleteObject(bitmap_);
         // 创建与窗口DC兼容的位图，大小为当前窗口的宽度和高度
-        // bitmap_ = CreateCompatibleBitmap(dc, width_, height_);
-        BITMAPINFO bmi{};
-        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-        bmi.bmiHeader.biWidth = width_;
-        bmi.bmiHeader.biHeight = -height_;
-        bmi.bmiHeader.biPlanes = 1;
-        bmi.bmiHeader.biBitCount = 32;
-        bitmap_ = CreateDIBSection(dc, &bmi, DIB_RGB_COLORS, nullptr, nullptr, 0);
+        bitmap_ = CreateCompatibleBitmap(dc, width_, height_);
         // 将新位图选入内存DC，并保存旧的位图对象指针以便后续恢复
         oldObject_ = SelectObject(cdc_, bitmap_);
 
@@ -109,7 +103,8 @@ namespace danmaku
             GpPtr<Gdiplus::GpGraphics> g;
             GdipCreateFromHDC(cdc_, &g);
             GpPtr<Gdiplus::GpPen> pen;
-            GdipCreatePen1(0xffff0000, 2.f, Gdiplus::UnitPixel, &pen);
+            GdipCreatePen1(0xff'000000 | random::getInt(0, 0xffffff),
+                           2.f, Gdiplus::UnitPixel, &pen);
             GdipSetPenMode(pen.get(), Gdiplus::PenAlignmentInset);
             GdipDrawRectangle(g.get(), pen.get(),
                               dirtyRect.left,

@@ -9,7 +9,7 @@ namespace danmaku
     BOOL DanmakuBitmapCache::allocate(int width, int height, Bitmap &outBmp)
     {
         {
-            SrwExclusiveGuard guard(lock_);
+            SrwExclusiveGuard _{lock_};
             for (auto it = cache_.begin(); it != cache_.end(); ++it)
             {
                 if (it->width >= width && it->height >= height)
@@ -20,6 +20,8 @@ namespace danmaku
                 }
             }
         }
+
+        // 没有合适的缓存，创建新的位图
 
         Bitmap bmp{};
 

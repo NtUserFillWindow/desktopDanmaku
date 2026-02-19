@@ -69,6 +69,8 @@ namespace danmaku
             return *instance_;
         }
 
+        // 必须与GDI+全局生命周期同步
+
         static void startup() { instance_ = new DanmakuBitmapCache{}; }
         static void shutdown()
         {
