@@ -16,6 +16,8 @@ namespace danmaku
         Gdiplus::ARGB fillColor_{};
         Gdiplus::ARGB borderColor_{};
         std::wstring text_{};
+        HBITMAP dib_{};
+        void* dibData_{};
         GpPtr<Gdiplus::GpBitmap> bitmap_{};
         float width_{};
         float height_{};
@@ -30,6 +32,8 @@ namespace danmaku
         void invalidateCache();
 
         Gdiplus::Status draw(Gdiplus::GpGraphics *g, float x, float y);
+
+        BOOL drawGdi(HDC dcDst, HDC cdc, float x, float y);
 
         danmakuItem() = default;
         danmakuItem(const danmakuItem &) = delete;

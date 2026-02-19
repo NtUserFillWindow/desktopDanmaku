@@ -11,6 +11,8 @@ namespace danmaku
         if (bitmap_.get())
             return;
 
+        assert(!dib_ && !dibData_);
+
         // TODO 拆离字体逻辑，对接全局字体管理
         // TODO 允许自定义字体属性（如字体名称、加粗、斜体等）
 
@@ -48,15 +50,23 @@ namespace danmaku
         // 获取路径的世界边界矩形（考虑到边框宽度，传入画笔）
         Gdiplus::Rect pathRect;
         GdipGetPathWorldBoundsI(path.get(), &pathRect, nullptr, pen.get());
-        width_ = pathRect.Width;
-        height_ = pathRect.Height;
+        width_ = ceilf(pathRect.Width);
+        height_ = ceilf(pathRect.Height);
+
+        BITMAPINFO bmi{};
+        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth = pathRect.Width;
+        bmi.bmiHeader.biHeight = -pathRect.Height;
+        bmi.bmiHeader.biPlanes = 1;
+        bmi.bmiHeader.biBitCount = 32;
+        dib_ = CreateDIBSection(nullptr, &bmi, DIB_RGB_COLORS, &dibData_, nullptr, 0);
 
         // 创建与边界矩形等大的位图（32位PARGB格式，支持透明通道）
         GdipCreateBitmapFromScan0(
             pathRect.Width, pathRect.Height,
-            0,
+            pathRect.Width * 4,
             PixelFormat32bppPARGB,
-            nullptr,
+            (BYTE *)dibData_,
             &bitmap_);
 
         // 从位图获取图形上下文，用于绘制文本
@@ -90,8 +100,24 @@ namespace danmaku
         return GdipDrawImage(g, bitmap_.get(), x, y);
     }
 
+    BOOL danmakuItem::drawGdi(HDC dcDst, HDC cdc, float x, float y)
+    {
+        if (!bitmap_.get())
+            rasterize();
+        SelectObject(cdc, dib_);
+        constexpr BLENDFUNCTION BlendFuncAlpha{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
+        return GdiAlphaBlend(dcDst, (int)x, (int)y, (int)width_, (int)height_,
+                             cdc, 0, 0, (int)width_, (int)height_, BlendFuncAlpha);
+    }
+
     void danmakuItem::invalidateCache()
     {
         bitmap_.clear();
+        if (dib_)
+        {
+            DeleteObject(dib_);
+            dib_ = nullptr;
+            dibData_ = nullptr;
+        }
     }
 }

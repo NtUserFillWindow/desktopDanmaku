@@ -72,14 +72,22 @@ namespace danmaku
             // 若DC已经创建，先恢复之前选入的位图对象
             SelectObject(cdc_, oldObject_);
         }
+
+        if (!cdcTemp_)
+            cdcTemp_ = CreateCompatibleDC(dc);
         // 删除旧的位图，准备创建新尺寸的位图
         DeleteObject(bitmap_);
         // 创建与窗口DC兼容的位图，大小为当前窗口的宽度和高度
-        bitmap_ = CreateCompatibleBitmap(dc, width_, height_);
+        //bitmap_ = CreateCompatibleBitmap(dc, width_, height_);
+        BITMAPINFO bmi{};
+        bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth = width_;
+        bmi.bmiHeader.biHeight = -height_;
+        bmi.bmiHeader.biPlanes = 1;
+        bmi.bmiHeader.biBitCount = 32;
+        bitmap_ = CreateDIBSection(dc, &bmi, DIB_RGB_COLORS, nullptr, nullptr, 0);
         // 将新位图选入内存DC，并保存旧的位图对象指针以便后续恢复
         oldObject_ = SelectObject(cdc_, bitmap_);
-
-        GdipCreateFromHDC(cdc_, graphics_.addressOfClear());
 
         paint();
     }
@@ -91,7 +99,7 @@ namespace danmaku
         // 清除
         FillRect(cdc_, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
 
-        danmakuMgr_.draw(graphics_.get());
+        danmakuMgr_.drawGdi(cdc_, cdcTemp_);
 
         // 设置分层窗口的混合参数（逐像素alpha）
         constexpr BLENDFUNCTION BlendFuncAlpha{AC_SRC_OVER, 0, 255, AC_SRC_ALPHA};
@@ -147,7 +155,11 @@ namespace danmaku
         case WM_DESTROY:
             // 清理资源：删除内存DC、位图和GDI+图形对象
             DeleteDC(cdc_);
+            cdc_ = nullptr;
+            DeleteDC(cdcTemp_);
+            cdcTemp_ = nullptr;
             DeleteObject(bitmap_);
+            bitmap_ = nullptr;
             oldObject_ = nullptr;
             break;
         }

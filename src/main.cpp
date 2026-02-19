@@ -148,7 +148,7 @@ void buttonClickHandler()
     if (g_overlayWindow)
     {
         // 添加新弹幕
-        g_overlayWindow->addDanmaku(content, 40, 0xff'66ccff, 0xff'ffcc66);
+        g_overlayWindow->addDanmaku(content, 40, 0xff'ffffff, 0xff'000000);
     }
 
     // 发送后清空输入框

@@ -38,6 +38,8 @@ namespace danmaku
 
         Gdiplus::Status draw(Gdiplus::GpGraphics *g);
 
+        BOOL drawGdi(HDC dcDst, HDC cdc);
+
         void setScreenSize(float width, float height)
         {
             screenWidth_ = width;

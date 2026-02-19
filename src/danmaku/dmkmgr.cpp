@@ -91,4 +91,19 @@ namespace danmaku
         }
         return status;
     }
+
+    BOOL danmakuManager::drawGdi(HDC dcDst, HDC cdc)
+    {
+        BOOL b;
+        for (auto &track : tracks_)
+        {
+            for (auto &item : track.items)
+            {
+                b = item.drawGdi(dcDst, cdc, item.getX(), track.y);
+                if (!b)
+                    return FALSE;
+            }
+        }
+        return TRUE;
+    }
 }
