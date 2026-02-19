@@ -21,6 +21,7 @@ jobs:
         shell: cmd
 
       # 安装 MSYS2 并配置 MinGW-w64 工具链（包含 g++、windres 等）
+      # 以下包可选，但 windres 已包含在 gcc 依赖中
       - name: Setup MSYS2 and install MinGW toolchains
         uses: msys2/setup-msys2@v2
         with:
@@ -29,7 +30,6 @@ jobs:
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-i686-gcc
-            # 以下包可选，但 windres 已包含在 gcc 依赖中
             mingw-w64-x86_64-binutils
             mingw-w64-i686-binutils
 
