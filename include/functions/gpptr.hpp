@@ -11,7 +11,7 @@ private:
     {
         if constexpr (std::is_same_v<T, Gdiplus::GpGraphics>)
             Gdiplus::DllExports::GdipDeleteGraphics(ptr_);
-        else if constexpr (std::is_same_v<T, Gdiplus::GpBitmap>)
+        else if constexpr (std::is_base_of_v<Gdiplus::GpImage, T>)
             Gdiplus::DllExports::GdipDisposeImage(ptr_);
         else if constexpr (std::is_same_v<T, Gdiplus::GpPen>)
             Gdiplus::DllExports::GdipDeletePen(ptr_);
