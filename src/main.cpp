@@ -22,10 +22,6 @@ std::optional<danmaku::Element> g_elemLabelAppName;
 std::optional<danmaku::Element> g_elemLabelPrompt;
 std::optional<danmaku::Element> g_elemEditContent;
 std::optional<danmaku::Element> g_elemButton;
-std::optional<danmaku::Element> g_elemLabelAppName;
-std::optional<danmaku::Element> g_elemLabelPrompt;
-std::optional<danmaku::Element> g_elemEditContent;
-std::optional<danmaku::Element> g_elemButton;
 // ↓ 后期将会禁用
 std::optional<danmaku::Element> g_elemLabelColor1;
 std::optional<danmaku::Element> g_elemEditColor1;
@@ -60,7 +56,7 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
 
     // 主窗口
     MSG msg;
-    
+
     danmaku::DanmakuBitmapCache::startup();
     {
         danmaku::MainWindow mainWindowObj;
