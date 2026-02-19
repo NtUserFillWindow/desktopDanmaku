@@ -72,7 +72,7 @@ namespace danmaku
     }
 
     // 在指定的图形上下文中绘制弹幕位图
-    Gdiplus::Status DanmakuItem::draw(Gdiplus::GpGraphics *g, float x, float y)
+    Gdiplus::Status DanmakuItem::drawGp(Gdiplus::GpGraphics *g, float x, float y)
     {
         // 若尚未光栅化，则立即执行
         if (!bitmap_.bitmap.get())

@@ -49,13 +49,15 @@ namespace danmaku
 
         void paint();
 
-        // 添加弹幕的方法
-        void addDanmaku(const std::wstring &text, float emSize, Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
+        // 添加弹幕
+        void addDanmaku(std::wstring_view text, float emSize,
+                        Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
         {
             danmakuMgr_.addDanmaku(DanmakuItem{text, emSize, fillColor, borderColor});
             paint();
         }
 
+        // 将当前状态推进指定的时间并重画
         void tick(float dt)
         {
             danmakuMgr_.tick(dt);

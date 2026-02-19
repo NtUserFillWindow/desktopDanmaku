@@ -40,9 +40,11 @@ namespace danmaku
     {
         size_t trackCount = (size_t)ceilf(screenHeight_ / lineHeight_);
         tracks_.resize(trackCount);
+        // 更新轨道坐标
         for (size_t i = 0; i < trackCount; ++i)
         {
-            tracks_[i].y = i * (lineHeight_ + lineGap_) + lineGap_ / 2.f;
+            tracks_[i].y =
+                i * (lineHeight_ + lineGap_) + lineGap_ / 2.f /* 居中对齐 */;
         }
     }
 
@@ -65,7 +67,8 @@ namespace danmaku
 
     void DanmakuManager::tick(float dt)
     {
-        RECT newRect{ INT_MAX, INT_MAX, INT_MIN, INT_MIN };
+        // 本次状态更新完成后的矩形
+        RECT newRect{INT_MAX, INT_MAX, INT_MIN, INT_MIN};
         for (auto &track : tracks_)
         {
             for (auto it = track.items.begin(); it != track.items.end();)
@@ -91,18 +94,19 @@ namespace danmaku
                 }
             }
         }
+        // 并上一状态的矩形以便擦除
         UnionRect(&dirtyRect_, &dirtyRectLast_, &newRect);
         dirtyRectLast_ = newRect;
     }
 
-    Gdiplus::Status DanmakuManager::draw(Gdiplus::GpGraphics *g)
+    Gdiplus::Status DanmakuManager::drawGp(Gdiplus::GpGraphics *g)
     {
         Gdiplus::Status status = Gdiplus::Ok;
         for (auto &track : tracks_)
         {
             for (auto &item : track.items)
             {
-                status = item.draw(g, item.getX(), track.y);
+                status = item.drawGp(g, item.getX(), track.y);
                 if (status != Gdiplus::Ok)
                     return status;
             }
