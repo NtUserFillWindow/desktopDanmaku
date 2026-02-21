@@ -5,7 +5,7 @@ namespace danmaku
 {
     BOOL DanmakuBitmapCache::allocate(int width, int height, Bitmap &outBmp)
     {
-        {
+        {// 查找一个尺寸大于等于请求尺寸的缓存
             SrwExclusiveGuard _{lock_};
             for (auto it = cache_.begin(); it != cache_.end(); ++it)
             {

@@ -12,6 +12,8 @@ namespace danmaku
     class OverlayWindow : public BaseWindow
     {
     private:
+        constexpr static UINT MessageClockTick = WM_USER + 3; // (毫秒计的间隔, 0)
+
         // 内存DC，分层窗口内容源
         HDC cdc_{};
         // 位图传输时用
@@ -22,11 +24,16 @@ namespace danmaku
         HGDIOBJ oldObject_{};
         int width_{}, height_{}; // 客户区
 
+        BOOL timerThreadExit_{};
+        HANDLE timerThreadHandle_{};
+
         DanmakuManager danmakuMgr_{};
 
         BOOL layoutFullscreen();
 
         void recreateMemoryDC();
+
+        static DWORD CALLBACK timerThread(void* param);
     public:
         PCWSTR className() const override { return L"Danmaku.WndCls.Overlay"; }
 
@@ -42,13 +49,15 @@ namespace danmaku
 
         void paint();
 
-        // 添加弹幕的方法
-        void addDanmaku(const std::wstring &text, float emSize, Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
+        // 添加弹幕
+        void addDanmaku(std::wstring_view text, float emSize,
+                        Gdiplus::ARGB fillColor, Gdiplus::ARGB borderColor)
         {
             danmakuMgr_.addDanmaku(DanmakuItem{text, emSize, fillColor, borderColor});
             paint();
         }
 
+        // 将当前状态推进指定的时间并重画
         void tick(float dt)
         {
             danmakuMgr_.tick(dt);

@@ -24,7 +24,7 @@ namespace danmaku
         // 保留
         void invalidateCache();
 
-        Gdiplus::Status draw(Gdiplus::GpGraphics *g, float x, float y);
+        Gdiplus::Status drawGp(Gdiplus::GpGraphics *g, float x, float y);
 
         BOOL drawGdi(HDC dcDst, HDC cdc, float x, float y);
 

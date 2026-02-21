@@ -27,7 +27,7 @@ namespace danmaku
         RECT dirtyRect_{};
         RECT dirtyRectLast_{};
 
-        // 从上到下寻找第一个合适轨道
+        // 从上到下寻找第一个合适轨道，没有轨道可用返回InvalidTrack
         size_t findBestTrack(float itemSpeed) const;
     public:
         // WARNING 尺寸、行高、行距改变后必须调用本函数
@@ -38,7 +38,7 @@ namespace danmaku
         // dt单位为秒
         void tick(float dt);
 
-        Gdiplus::Status draw(Gdiplus::GpGraphics *g);
+        Gdiplus::Status drawGp(Gdiplus::GpGraphics *g);
 
         BOOL drawGdi(HDC dcDst, HDC cdc);
 

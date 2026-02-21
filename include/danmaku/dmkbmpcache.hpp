@@ -76,6 +76,7 @@ namespace danmaku
 
         BOOL allocate(int width, int height, Bitmap &outBmp);
 
+        // 放回空闲列表以重用，可以传递空Bitmap对象
         void free(Bitmap &&bmp);
     };
 }

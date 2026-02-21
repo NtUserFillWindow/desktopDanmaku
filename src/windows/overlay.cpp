@@ -4,8 +4,8 @@
 
 using namespace Gdiplus::DllExports;
 
-constexpr UINT_PTR TimerWorldTick = 1;      // 定时器ID
-constexpr UINT TimerWorldTickInterval = 14; // 定时器间隔
+constexpr UINT TimerWorldTickInterval = 14;    // 定时器间隔
+constexpr UINT TimerWorldTickMinInterval = 12; // TimerWorldTickInterval减去误差
 
 namespace danmaku
 {
@@ -60,17 +60,9 @@ namespace danmaku
         const auto dc = GetDC(hwnd);
         // 若内存DC未创建
         if (!cdc_)
-        {
             cdc_ = CreateCompatibleDC(dc);
-            // 设置背景模式透明，文字颜色浅黄色
-            SetBkMode(cdc_, TRANSPARENT);
-            SetTextColor(cdc_, 0xffcc66);
-        }
-        else
-        {
-            // 若DC已经创建，先恢复之前选入的位图对象
+        else // 挤掉将要删除的位图
             SelectObject(cdc_, oldObject_);
-        }
 
         if (!cdcTemp_)
             cdcTemp_ = CreateCompatibleDC(dc);
@@ -82,6 +74,32 @@ namespace danmaku
         oldObject_ = SelectObject(cdc_, bitmap_);
 
         paint();
+    }
+
+    DWORD CALLBACK OverlayWindow::timerThread(void* param)
+    {
+        const auto self = (OverlayWindow *)param;
+        const auto timer = CreateWaitableTimerW(nullptr, FALSE, nullptr);
+
+        ULONGLONG lastTick = GetTickCount64(); // 上一帧的开始时刻
+        while (!self->timerThreadExit_)
+        {
+            const auto now = GetTickCount64(); // 帧开始时刻
+            if (const auto param = WPARAM(now - lastTick))
+                SendMessageW(self->hwnd, MessageClockTick, param, 0);
+
+            const auto delta = GetTickCount64() - lastTick; // SendMessageW消耗的时间
+            lastTick = now;
+            if (delta < TimerWorldTickMinInterval) // 延时以消耗剩余时间
+            {
+                LARGE_INTEGER dueTime;
+                dueTime.QuadPart = -((TimerWorldTickMinInterval - delta) * 10000ll);
+                SetWaitableTimer(timer, &dueTime, 0, nullptr, nullptr, FALSE);
+                WaitForSingleObject(timer, INFINITE);
+            }
+        }
+        CloseHandle(timer);
+        return 0;
     }
 
     void OverlayWindow::paint()
@@ -125,6 +143,7 @@ namespace danmaku
         ulwi.pptSrc = &SourcePoint;    // 源DC中绘制的起点
         ulwi.pblend = &BlendFuncAlpha; // 混合函数参数
         ulwi.dwFlags = ULW_ALPHA;      // 使用 alpha 混合
+        // 裁剪脏矩形到DC范围
         const RECT clientRect{0, 0, width_, height_};
         RECT realRect;
         IntersectRect(&realRect, &dirtyRect, &clientRect);
@@ -138,21 +157,21 @@ namespace danmaku
     {
         switch (uMsg)
         {
-        case WM_TIMER:
-            if (wParam == TimerWorldTick)
-            {
-                tick(TimerWorldTickInterval / 1000.0f); // 将毫秒转换为秒
-            }
+        case MessageClockTick:
+            tick(wParam / 1000.f);
             break;
         case WM_CREATE:
             // TEMP 测试
             danmakuMgr_.setLineHeight(40);
             danmakuMgr_.setLineGap(10);
-            danmakuMgr_.setDuration(5.0f);
+            danmakuMgr_.setDuration(5.f);
             danmakuMgr_.setItemGap(10);
-            danmakuMgr_.setSpeedFactor(1.0f);
+            danmakuMgr_.setSpeedFactor(1.f);
             layoutFullscreen();
-            SetTimer(hwnd, TimerWorldTick, TimerWorldTickInterval, nullptr);
+            // 启动定时线程
+            assert(!timerThreadHandle_);
+            timerThreadExit_ = FALSE;
+            timerThreadHandle_ = CreateThread(nullptr, 0, timerThread, this, 0, nullptr);
             break;
         case WM_SIZE:
             // 更新窗口尺寸并重新创建内存DC
@@ -167,6 +186,11 @@ namespace danmaku
             layoutFullscreen();
             break;
         case WM_DESTROY:
+            // 终止定时线程
+            timerThreadExit_ = TRUE;
+            WaitForSingleObject(timerThreadHandle_, INFINITE);
+            CloseHandle(timerThreadHandle_);
+            timerThreadHandle_ = nullptr;
             // 清理资源：删除内存DC、位图和GDI+图形对象
             DeleteDC(cdc_);
             cdc_ = nullptr;
