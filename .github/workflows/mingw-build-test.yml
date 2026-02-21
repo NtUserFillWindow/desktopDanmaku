@@ -97,7 +97,34 @@ jobs:
           echo ========== Environment verification completed ==========
           echo All required tools are available in the system PATH
 
-      # 步骤6：执行make编译测试（核心步骤，cmd执行）
+      # 步骤6：设置编译器路径和环境变量
+      - name: Set compiler paths and environment variables
+        shell: powershell
+        run: |
+          # 确保MSYS2路径在最前面
+          $msys2Path = "C:\msys64\mingw64\bin;C:\msys64\mingw32\bin;C:\msys64\usr\bin"
+          $env:PATH = $msys2Path + ";" + $env:PATH
+          # 设置MSYS环境变量以避免chcp命令问题
+          $env:MSYS = "winsymlinks:nativestrict"
+          # 验证编译器是否存在
+          Write-Host "=== Verifying 32-bit compiler ==="
+          if (Test-Path "C:\msys64\mingw32\bin\i686-w64-mingw32-g++.exe") {
+              Write-Host "✅ 32-bit compiler found: C:\msys64\mingw32\bin\i686-w64-mingw32-g++.exe"
+          } else {
+              Write-Host "❌ 32-bit compiler not found, reinstalling..."
+              & "C:\msys64\usr\bin\bash.exe" -lc "pacman -S --noconfirm mingw-w64-i686-gcc"
+          }
+          Write-Host "=== Verifying 64-bit compiler ==="
+          if (Test-Path "C:\msys64\mingw64\bin\x86_64-w64-mingw32-g++.exe") {
+              Write-Host "✅ 64-bit compiler found: C:\msys64\mingw64\bin\x86_64-w64-mingw32-g++.exe"
+          } else {
+              Write-Host "❌ 64-bit compiler not found, reinstalling..."
+              & "C:\msys64\usr\bin\bash.exe" -lc "pacman -S --noconfirm mingw-w64-x86_64-gcc"
+          }
+          # 保存修改后的PATH
+          echo $env:PATH | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      # 步骤7：执行make编译测试（核心步骤，cmd执行）
       - name: Run make (DEBUG=${{ matrix.DEBUG }}, ARCH=${{ matrix.ARCH }})        
         shell: cmd
         # 若makefile不在仓库根目录，可在下方添加 working-directory: 你的子目录路径
@@ -105,6 +132,10 @@ jobs:
           echo "Running make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}"
           echo "Current directory: %CD%"
           echo "PATH: %PATH%"
+          # 临时修改PATH，确保MSYS2路径优先
+          set "PATH=C:\msys64\mingw64\bin;C:\msys64\mingw32\bin;C:\msys64\usr\bin;%PATH%"
+          echo "Modified PATH: %PATH%"
+          # 执行make命令
           make DEBUG=${{ matrix.DEBUG }} ARCH=${{ matrix.ARCH }}
           if %errorlevel% neq 0 (
               echo "Make failed with exit code %errorlevel%, retrying..."
