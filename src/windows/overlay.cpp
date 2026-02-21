@@ -76,7 +76,8 @@ namespace danmaku
         paint();
     }
 
-    DWORD CALLBACK OverlayWindow::timerThread(void* param)
+    // 不是我想，但我的格式化插件就是不允许*挨着void（/(ㄒoㄒ)/）
+    DWORD CALLBACK OverlayWindow::timerThread(void *param)
     {
         const auto self = (OverlayWindow *)param;
         const auto timer = CreateWaitableTimerW(nullptr, FALSE, nullptr);
@@ -187,18 +188,41 @@ namespace danmaku
             break;
         case WM_DESTROY:
             // 终止定时线程
-            timerThreadExit_ = TRUE;
-            WaitForSingleObject(timerThreadHandle_, INFINITE);
-            CloseHandle(timerThreadHandle_);
-            timerThreadHandle_ = nullptr;
+            if (timerThreadHandle_)
+            {
+                timerThreadExit_ = TRUE;
+                // 设置超时时间，避免永久阻塞
+                DWORD waitResult = WaitForSingleObject(timerThreadHandle_, 5000); // 5秒超时
+                if (waitResult == WAIT_TIMEOUT)
+                {
+                    // 超时处理，记录错误
+                    debug::logOutput(L"[警告] 定时器线程超时，可能无法正常退出\n");
+                }
+                CloseHandle(timerThreadHandle_);
+                timerThreadHandle_ = nullptr;
+            }
+
             // 清理资源：删除内存DC、位图和GDI+图形对象
-            DeleteDC(cdc_);
-            cdc_ = nullptr;
-            DeleteDC(cdcTemp_);
-            cdcTemp_ = nullptr;
-            DeleteObject(bitmap_);
-            bitmap_ = nullptr;
+            if (cdc_)
+            {
+                DeleteDC(cdc_);
+                cdc_ = nullptr;
+            }
+
+            if (cdcTemp_)
+            {
+                DeleteDC(cdcTemp_);
+                cdcTemp_ = nullptr;
+            }
+
+            if (bitmap_)
+            {
+                DeleteObject(bitmap_);
+                bitmap_ = nullptr;
+            }
+
             oldObject_ = nullptr;
+
             break;
         }
         return DefWindowProcW(hwnd, uMsg, wParam, lParam);

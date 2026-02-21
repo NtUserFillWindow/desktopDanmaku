@@ -70,7 +70,8 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
         }
     }
 
-    delete g_mainWindow; // GDI+关闭前析构
+    if(g_mainWindow)delete g_mainWindow; // GDI+关闭前析构
+    g_mainWindow = nullptr;
 
     danmaku::DanmakuBitmapCache::shutdown();
     Gdiplus::GdiplusShutdown(g_gpToken);
