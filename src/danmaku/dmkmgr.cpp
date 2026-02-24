@@ -68,6 +68,7 @@ namespace danmaku
 
     BOOL DanmakuManager::tick(float dt)
     {
+        DanmakuBitmapCache::instance().tick();
         // 本次状态更新完成后的矩形
         RECT newRect{INT_MAX, INT_MAX, INT_MIN, INT_MIN};
         BOOL bUpdated{};
