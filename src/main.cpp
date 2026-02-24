@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "main.hpp"
+#include "functions/randnum.hpp"
 
 // 向前声明
 void init_creatElement(danmaku::BaseWindow &mainWND);
@@ -70,7 +71,8 @@ int WINAPI wWinMain([[maybe_unused]] HINSTANCE hInstance, [[maybe_unused]] HINST
         }
     }
 
-    if(g_mainWindow)delete g_mainWindow; // GDI+关闭前析构
+    if (g_mainWindow)
+        delete g_mainWindow; // GDI+关闭前析构
     g_mainWindow = nullptr;
 
     danmaku::DanmakuBitmapCache::shutdown();
@@ -179,7 +181,7 @@ void init_creatElement(danmaku::BaseWindow &mainWND)
         g_elemEditColor2.value());
 }
 
-Gdiplus::ARGB HexStringToARGB(const std::wstring &hexStr)
+Gdiplus::ARGB hexStringToArgb(const std::wstring &hexStr)
 {
     try
     {
@@ -234,7 +236,13 @@ void buttonClickHandler()
     if (g_overlayWindow)
     {
         // 添加新弹幕
-        g_overlayWindow->addDanmaku(content, 40, HexStringToARGB(color1), HexStringToARGB(color2));
+        // g_overlayWindow->addDanmaku(content, 40,
+        //     hexStringToArgb(color1), hexStringToArgb(color2));
+
+        g_overlayWindow->addDanmaku(
+            content, 40,
+            (random::getInt(0x50, 0xFF) << 24) | random::getInt(0, 0xFFFFFF),
+            (random::getInt(0x50, 0xFF) << 24) | random::getInt(0, 0xFFFFFF));
     }
 
     // 发送后清空输入框
